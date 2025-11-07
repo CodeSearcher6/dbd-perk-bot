@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "perks": [
+      "Conviction",
+      "Dead Hard",
+      "Adrenaline",
+      "Sprint Burst",
+      "Borrowed Time",
+      "Prove Thyself",
+      "Unbreakable",
+      "Decisive Strike",
+      "Iron Will",
+      "Lithe",
+      "Resilience",
+      "Windows of Opportunity",
+      "Finesse",
+      "Deja Vu"
+    ]
+  },
+  "troll": {
+    "perks": [
+      "Head On",
+      "Flip-Flop",
+      "Boil Over",
+      "Plot Twist",
+      "Power Struggle",
+      "Blast Mine",
+      "Chemical Trap",
+      "Saboteur",
+      "Background Player",
+      "Unbreakable",
+      "Champion of Light",
+      "Flashbang"
+    ]
+  },
+  "streamer": {
+    "import_otz": true
+  }
+}

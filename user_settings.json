@@ -1,0 +1,52 @@
+{
+  "modes": {
+    "629621396787560458": "meta"
+  },
+  "langs": {
+    "540890352802988042": "en",
+    "629621396787560458": "ua"
+  },
+  "users": {
+    "0": {
+      "Mode": "normal",
+      "Language": "en",
+      "OwnedPerks": [],
+      "MissingPerks": [],
+      "OwnedSurvivors": [],
+      "MissingSurvivors": [],
+      "LastRolledPerks": []
+    },
+    "540890352802988042": {
+      "Mode": "normal",
+      "Language": "en",
+      "OwnedPerks": [],
+      "MissingPerks": [],
+      "OwnedSurvivors": [],
+      "MissingSurvivors": [],
+      "LastRolledPerks": []
+    },
+    "629621396787560458": {
+      "Mode": "normal",
+      "Language": "en",
+      "OwnedPerks": [],
+      "MissingPerks": [],
+      "OwnedSurvivors": [
+        "Renato Lyra"
+      ],
+      "MissingSurvivors": [
+        "Rebecca Chambers",
+        "Lara Croft",
+        "Vittorio Toscano",
+        "Jeff Johansen",
+        "Thalita Lyra",
+        "Haddie Kaur",
+        "Yoichi Asakawa",
+        "Cheryl Mason",
+        "Quentin Smith",
+        "Alan Wake",
+        "Rick Grimes"
+      ],
+      "LastRolledPerks": []
+    }
+  }
+}

@@ -1,0 +1,66 @@
+using Discord.WebSocket;
+
+namespace DBDPerkBot.Commands;
+
+public class LangCommand
+{
+    private readonly UserSettingsService _users;
+    private readonly LocaleService _loc;
+
+    private readonly string[] _supported = { "en", "ua", "fr" };
+
+    public LangCommand(UserSettingsService users, LocaleService loc)
+    {
+        _users = users;
+        _loc = loc;
+    }
+
+    public async Task Handle(SocketMessage msg)
+    {
+        if (!msg.Content.StartsWith("!lang")) return;
+
+        var userId = msg.Author.Id;
+        var parts = msg.Content.Split(" ");
+
+        // ✅ Користувач просто хоче побачити поточну мову
+        if (parts.Length == 1)
+        {
+            var lang = _users.GetLang(userId);
+            var langDisplay = lang switch
+            {
+                "ua" => "Українська",
+                "fr" => "Français",
+                _ => "English"
+            };
+
+            await msg.Channel.SendMessageAsync(
+                _loc.T(lang, "CurrentLang", langDisplay)
+            );
+
+            return;
+        }
+
+        // ✅ Користувач хоче змінити мову
+        var newLang = parts[1];
+
+        if (!_supported.Contains(newLang))
+        {
+            var cur = _users.GetLang(userId);
+            await msg.Channel.SendMessageAsync(_loc.T(cur, "InvalidLang"));
+            return;
+        }
+
+        _users.SetLang(userId, newLang);
+
+        var newDisplay = newLang switch
+        {
+            "ua" => "Українська",
+            "fr" => "Français",
+            _ => "English"
+        };
+
+        await msg.Channel.SendMessageAsync(
+            _loc.T(newLang, "LangChanged", newDisplay)
+        );
+    }
+}
