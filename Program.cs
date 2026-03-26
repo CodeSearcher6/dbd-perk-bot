@@ -34,6 +34,8 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddSingleton<ResetPerksCommand>();
         services.AddSingleton<StupidUsersCommand>();
         services.AddSingleton<IAmNewbieCommand>();
+        services.AddSingleton<CharacterPerksCommand>();
+
 
 
 

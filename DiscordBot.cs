@@ -127,7 +127,7 @@ public class DiscordBot
             return null;
 
         var prefix = content[0];
-        if (prefix != '!' && prefix != '/')
+        if (prefix != '!')
             return null;
 
         var rest = content[1..];

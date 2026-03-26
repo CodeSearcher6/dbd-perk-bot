@@ -414,3 +414,4 @@ E:\DBDPerkRandomizerBot\src\DBDPerkBot\obj\Release\net9.0\refint\DBDPerkBot.dll
 E:\DBDPerkRandomizerBot\src\DBDPerkBot\obj\Release\net9.0\DBDPerkBot.pdb
 E:\DBDPerkRandomizerBot\src\DBDPerkBot\obj\Release\net9.0\DBDPerkBot.genruntimeconfig.cache
 E:\DBDPerkRandomizerBot\src\DBDPerkBot\obj\Release\net9.0\ref\DBDPerkBot.dll
+E:\DBDPerkRandomizerBot\src\DBDPerkBot\bin\Release\net9.0\appsettings.json

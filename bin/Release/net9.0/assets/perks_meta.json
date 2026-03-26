@@ -1110,62 +1110,62 @@
     "role": "survivor",
     "name": "Eleven",
     "perk": "Extrasensory Perception",
-    "image": "iconsPerks_ExtrasensoryPerception.png"
+    "image": "T_UI_iconsPerks_ExtrasensoryPerception.png"
   },
   {
     "id": 158,
     "role": "survivor",
     "name": "Eleven",
     "perk": "Teamwork: Soft-Spoken",
-    "image": "iconsPerks_TeamworkSoftSpoken.png"
+    "image": "T_UI_iconsPerks_TeamworkSoftSpoken.png"
   },
   {
     "id": 159,
     "role": "survivor",
     "name": "Eleven",
     "perk": "We See You",
-    "image": "iconsPerks_WeSeeYou.png"
+    "image": "T_UI_iconsPerks_WeSeeYou.png"
   },
   {
     "id": 160,
     "role": "survivor",
     "name": "Dustin Henderson",
     "perk": "Bada Bada Boom",
-    "image": "iconsPerks_BadaBadaBoom.png"
+    "image": "T_UI_iconsPerks_BadaBadaBoom.png"
   },
   {
     "id": 161,
     "role": "survivor",
     "name": "Dustin Henderson",
     "perk": "Change of Plan",
-    "image": "iconsPerks_ChangeOfPlan.png"
+    "image": "T_UI_iconsPerks_ChangeOfPlan.png"
   },
   {
     "id": 162,
     "role": "survivor",
     "name": "Dustin Henderson",
     "perk": "Teamwork: Full Circuit",
-    "image": "iconsPerks_TeamworkFullCircuit.png"
+    "image": "T_UI_iconsPerks_TeamworkFullCircuit.png"
   },
   {
     "id": 163,
     "role": "survivor",
     "name": "Kwon Tae-young",
     "perk": "A Place For Us",
-    "image": "iconsPerks_aPlaceForUs.png"
+    "image": "T_UI_iconsPerks_aPlaceForUs.png"
   },
   {
     "id": 164,
     "role": "survivor",
     "name": "Kwon Tae-young",
     "perk": "Five Moves Ahead",
-    "image": "iconsPerks_FiveMovesAhead.png"
+    "image": "T_UI_iconsPerks_FiveMovesAhead.png"
   },
   {
     "id": 165,
     "role": "survivor",
     "name": "Kwon Tae-young",
     "perk": "Flow State",
-    "image": "iconsPerks_FlowState.png"
+    "image": "T_UI_iconsPerks_FlowState.png"
   }
 ]

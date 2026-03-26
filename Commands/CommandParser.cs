@@ -15,7 +15,7 @@ public static class CommandParser
             return false;
 
         var prefix = content[0];
-        if (prefix != '!' && prefix != '/')
+        if (prefix != '!')
             return false;
 
         var expected = prefix + command;
