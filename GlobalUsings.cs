@@ -7,3 +7,4 @@ global using Discord.WebSocket;
 global using DBDPerkBot.Services;
 global using DBDPerkBot.Models;
 global using DBDPerkBot.Commands;
+global using DBDPerkBot.Utils;

@@ -19,18 +19,17 @@ public class DhtcCommand
     }
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!dhtc")) return;
+        if (!CommandParser.TryMatch(msg.Content, "dhtc", out var args)) return;
 
         var lang = _users.GetLang(msg.Author.Id);
 
-        var parts = msg.Content.Split(" ", 2, StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length < 2)
+        if (string.IsNullOrWhiteSpace(args))
         {
             await msg.Channel.SendMessageAsync(_loc.T(lang, "Dhtc_Usage"));
             return;
         }
 
-        string name = parts[1].Trim();
+        string name = args.Trim();
         var user = _users.GetSettings(msg.Author.Id);
 
         // базовий сурв — не можна

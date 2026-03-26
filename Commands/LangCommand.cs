@@ -17,13 +17,12 @@ public class LangCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!lang")) return;
+        if (!CommandParser.TryMatch(msg.Content, "lang", out var args)) return;
 
         var userId = msg.Author.Id;
-        var parts = msg.Content.Split(" ");
 
         // ✅ Користувач просто хоче побачити поточну мову
-        if (parts.Length == 1)
+        if (string.IsNullOrWhiteSpace(args))
         {
             var lang = _users.GetLang(userId);
             var langDisplay = lang switch
@@ -41,7 +40,7 @@ public class LangCommand
         }
 
         // ✅ Користувач хоче змінити мову
-        var newLang = parts[1];
+        var newLang = args.Trim().ToLowerInvariant(); 
 
         if (!_supported.Contains(newLang))
         {

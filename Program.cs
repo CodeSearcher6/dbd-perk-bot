@@ -33,6 +33,8 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddSingleton<DhtpCommand>();
         services.AddSingleton<ResetPerksCommand>();
         services.AddSingleton<StupidUsersCommand>();
+        services.AddSingleton<IAmNewbieCommand>();
+
 
 
         services.AddSingleton<UserSettingsService>();

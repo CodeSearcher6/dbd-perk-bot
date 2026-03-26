@@ -16,7 +16,7 @@ public class ProfileCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!profile")) return;
+        if (!CommandParser.TryMatch(msg.Content, "profile", out _)) return;
 
         var id = msg.Author.Id;
         var lang = _users.GetLang(id);

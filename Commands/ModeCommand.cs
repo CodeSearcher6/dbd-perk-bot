@@ -9,7 +9,7 @@ public class ModeCommand
 
     private static readonly HashSet<string> ValidModes = new()
     {
-        "random", "streamer", "solo", "meta", "troll", "forteams", "advanced"
+        "random", "streamer", "solo", "meta", "troll", "forteams", "advanced", "normal"
     };
 
     public ModeCommand(UserSettingsService users, LocaleService loc)
@@ -20,30 +20,34 @@ public class ModeCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!mode")) return;
+        if (!CommandParser.TryMatch(msg.Content, "mode", out var args)) return;
 
-        var parts = msg.Content.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        var parts = string.IsNullOrWhiteSpace(args)
+            ? Array.Empty<string>()
+            : args.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
         var lang = _users.GetLang(msg.Author.Id);
 
-        // без аргументів → показує поточний режим
-        if (parts.Length < 2)
+        if (parts.Length == 0)
         {
             var current = _users.GetMode(msg.Author.Id);
-            var text = _loc.T(lang, "ModeCurrent", current); // наприклад: "Current mode: {0}"
-            await msg.Channel.SendMessageAsync(text);
+            await msg.Channel.SendMessageAsync(_loc.T(lang, "ModeCurrent", current));
             return;
         }
 
-        var mode = parts[1].ToLower();
+        var mode = parts[0].ToLowerInvariant();
 
-        if (!ValidModes.Contains(mode))
+        if (mode == "normal")
+            mode = "random";
+
+        if (!ValidModes.Contains(mode) && mode != "random")
         {
             await msg.Channel.SendMessageAsync(_loc.T(lang, "ModeUsage"));
             return;
         }
 
         _users.SetMode(msg.Author.Id, mode);
-        var confirm = _loc.T(lang, "ModeSet", mode); // наприклад: "Mode set to: {0}"
-        await msg.Channel.SendMessageAsync(confirm);
+        await msg.Channel.SendMessageAsync(_loc.T(lang, "ModeSet", mode));
     }
+
 }

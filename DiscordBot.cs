@@ -18,10 +18,12 @@ public class DiscordBot
     private readonly DhtcCommand _dhtcCommand;
     private readonly DhtpCommand _dhtpCommand;
     private readonly StupidUsersCommand _stupidUsers;
-
     private readonly IHaveCommand _ihaveCommand;
     private readonly MissingCommand _missingCommand;
     private readonly ResetPerksCommand _resetPerks;
+    private readonly IAmNewbieCommand _iAmNewbie;
+    private readonly CharacterPerksCommand _characterPerks;
+
 
 
 
@@ -41,6 +43,10 @@ public class DiscordBot
         MissingCommand missingCommand,
         ResetPerksCommand resetPerks,
         StupidUsersCommand stupidUsers,
+        IAmNewbieCommand iAmNewbie,
+        CharacterPerksCommand characterPerks,
+
+
 
 
         UserSettingsService users
@@ -58,6 +64,9 @@ public class DiscordBot
         _missingCommand = missingCommand;
         _stupidUsers = stupidUsers;
         _resetPerks = resetPerks;
+        _iAmNewbie = iAmNewbie;
+        _characterPerks = characterPerks;
+
 
 
         _users = users;
@@ -87,22 +96,68 @@ public class DiscordBot
         Console.WriteLine("✅ Bot started");
     }
 
-    private Task OnMessage(SocketMessage msg)
+    private async Task OnMessage(SocketMessage msg)
     {
-        if (msg.Author.IsBot) return Task.CompletedTask;
+        if (msg.Author.IsBot) return;
 
-        var handlers = new Func<SocketMessage, Task>[]
+        var command = GetCommandName(msg.Content);
+        if (command is null) return;
+
+        var handler = ResolveHandler(command);
+        if (handler is null) return;
+
+        try
         {
-        _lang.Handle, _mode.Handle, _dpsm.Handle, _profile.Handle,
-        _checkIcons.Handle, _helpCommand.Handle, _dhtcCommand.Handle,
-        _dhtpCommand.Handle, _ihaveCommand.Handle, _missingCommand.Handle,
-        _resetPerks.Handle, _stupidUsers.Handle
-        };
-
-        foreach (var h in handlers)
-            _ = Task.Run(() => h(msg));
-
-        return Task.CompletedTask;
+            await handler(msg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[COMMAND ERROR] {command}: {ex}");
+        }
     }
+
+    private static string? GetCommandName(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return null;
+
+        content = content.Trim();
+
+        if (content.Length < 2)
+            return null;
+
+        var prefix = content[0];
+        if (prefix != '!' && prefix != '/')
+            return null;
+
+        var rest = content[1..];
+        var spaceIndex = rest.IndexOf(' ');
+
+        return (spaceIndex >= 0 ? rest[..spaceIndex] : rest)
+            .Trim()
+            .ToLowerInvariant();
+    }
+
+    private Func<SocketMessage, Task>? ResolveHandler(string command) => command switch
+    {
+        "lang" => _lang.Handle,
+        "mode" => _mode.Handle,
+        "dpsm" => _dpsm.Handle,
+        "profile" => _profile.Handle,
+        "checkicons" => _checkIcons.Handle,
+        "help" => _helpCommand.Handle,
+        "dhtc" => _dhtcCommand.Handle,
+        "dhtp" => _dhtpCommand.Handle,
+        "ihave" => _ihaveCommand.Handle,
+        "missing" => _missingCommand.Handle,
+        "resetperks" => _resetPerks.Handle,
+        "iamnewbie" => _iAmNewbie.Handle,
+        "charperks" => _characterPerks.Handle,
+        "scp" => _characterPerks.Handle,
+        "sex_with_albina" => _stupidUsers.Handle,
+        "gaysex_with_vlad" => _stupidUsers.Handle,
+        "sex_with_ada" => _stupidUsers.Handle,
+        _ => null
+    };
 
 }

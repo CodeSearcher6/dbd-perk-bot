@@ -2,8 +2,6 @@ namespace DBDPerkBot;
 
 public class RandomService
 {
-    private readonly Random _rng = new();
-
-    public int Next(int max) => _rng.Next(max);
-    public double NextDouble() => _rng.NextDouble();
+    public int Next(int max) => Random.Shared.Next(max);
+    public double NextDouble() => Random.Shared.NextDouble();
 }

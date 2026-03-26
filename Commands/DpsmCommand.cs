@@ -1,4 +1,6 @@
 using Discord.WebSocket;
+using System.Collections.Concurrent;
+
 
 namespace DBDPerkBot;
 
@@ -8,6 +10,9 @@ public class DpsmCommand
     private readonly ImageComposer _image;
     private readonly UserSettingsService _users;
     private readonly LocaleService _loc;
+    private static readonly SemaphoreSlim _buildGate = new(3, 3);
+    private static readonly ConcurrentDictionary<ulong, SemaphoreSlim> _userLocks = new();
+
 
     public DpsmCommand(BuildGenerator generator, ImageComposer image, UserSettingsService users, LocaleService loc)
     {
@@ -19,32 +24,46 @@ public class DpsmCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!dpsm")) return;
+        if (!CommandParser.TryMatch(msg.Content, "dpsm", out _)) return;
 
         var userId = msg.Author.Id;
+        var userLock = _userLocks.GetOrAdd(userId, _ => new SemaphoreSlim(1, 1));
         var lang = _users.GetLang(userId);
-        var mode = _users.GetMode(userId);
 
-        await msg.Channel.SendMessageAsync(_loc.T(lang, "Generating"));
+        await userLock.WaitAsync();
+        await _buildGate.WaitAsync();
+        try
+        {
 
-        // Генеруємо білд — без Task.Run (це вже async I/O)
-        var perks = await _generator.Generate(mode, userId);
+            var mode = _users.GetMode(userId);
 
-        // Зберігаємо дані користувача
-        var user = _users.GetSettings(userId);
-        user.LastRolledPerks = perks.Select(p => p.Name).ToList();
-        await _users.SaveAsync(userId);
+            await msg.Channel.SendMessageAsync(_loc.T(lang, "Generating"));
 
-        // Рендеримо картинку у фоновому потоці (CPU-bound)
-        var stream = await _image.ComposeAsync(perks, mode);
-        stream.Position = 0;
+            var perks = await _generator.Generate(mode, userId);
 
-        string text = string.Join(", ", perks.Select(p => p.Name));
+            var user = _users.GetSettings(userId);
+            user.LastRolledPerks = perks.Select(p => p.Name).ToList();
+            await _users.SaveAsync(userId);
 
-        await msg.Channel.SendFileAsync(
-            stream,
-            "build.png",
-            $"{_loc.T(lang, "BuildReady")}\n{text}"
-        );
+            var stream = await _image.ComposeAsync(perks, mode);
+            stream.Position = 0;
+
+            string text = string.Join(", ", perks.Select(p => p.Name));
+
+            await msg.Channel.SendFileAsync(
+                stream,
+                "build.png",
+                $"{_loc.T(lang, "BuildReady")}\n{text}"
+            );
+        }
+        finally
+        {
+            _buildGate.Release();
+            userLock.Release();
+
+            if (userLock.CurrentCount == 1)
+                _userLocks.TryRemove(userId, out _);
+        }
     }
+
 }

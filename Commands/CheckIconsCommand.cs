@@ -18,7 +18,7 @@ public class CheckIconsCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!checkicons")) return;
+        if (!CommandParser.TryMatch(msg.Content, "checkicons", out _)) return;
 
         try
         {

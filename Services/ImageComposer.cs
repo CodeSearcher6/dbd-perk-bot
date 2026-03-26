@@ -41,22 +41,34 @@ public class ImageComposer
 
     public async Task<Stream> ComposeAsync(List<Perk> perks, string mode)
     {
-        const int card = 256;
-        const int gap = 40;
-        const int pad = 24;
+        string title = ModeTitles.Get(mode);
+        return await ComposeCardsAsync(perks, title);
+    }
 
-        int width = perks.Count * card + (perks.Count - 1) * gap + pad * 2;
-        int height = card + pad * 2 + 90;
+    public async Task<Stream> ComposeCharacterPerksAsync(string characterName, List<Perk> perks)
+    {
+        return await ComposeCardsAsync(perks, characterName);
+    }
+
+    private async Task<Stream> ComposeCardsAsync(List<Perk> perks, string title)
+    {
+        const int card = 256;
+        const int gap = 48;
+        const int pad = 32;
+        const int top = 96;
+        const int bottom = 74;
+
+        int cardsWidth = perks.Count * card + (perks.Count - 1) * gap;
+        int width = Math.Max(1100, cardsWidth + pad * 2);
+        int height = top + card + bottom;
 
         using var canvas = new Image<Rgba32>(width, height, new Rgba32(10, 10, 10));
-
-        string title = ModeTitles.Get(mode);
 
         DrawTitle(canvas, title);
         ApplyVignette(canvas);
 
-        int x = pad;
-        int y = pad + 55;
+        int x = (width - cardsWidth) / 2;
+        int y = top;
 
         for (int i = 0; i < perks.Count; i++)
         {
@@ -83,7 +95,6 @@ public class ImageComposer
         await ms.FlushAsync();
         ms.Position = 0;
         return ms;
-
     }
 
     private void DrawTitle(Image<Rgba32> img, string text)

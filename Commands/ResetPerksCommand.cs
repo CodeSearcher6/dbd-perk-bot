@@ -15,7 +15,7 @@ public class ResetPerksCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!resetperks")) return;
+        if (!CommandParser.TryMatch(msg.Content, "resetperks", out _)) return;
 
         var lang = _users.GetLang(msg.Author.Id);
         var user = _users.GetSettings(msg.Author.Id);

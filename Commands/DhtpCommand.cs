@@ -17,18 +17,17 @@ public class DhtpCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!dhtp")) return;
+        if (!CommandParser.TryMatch(msg.Content, "dhtp", out var args)) return;
 
         var lang = _users.GetLang(msg.Author.Id);
-        var parts = msg.Content.Split(" ", 2, StringSplitOptions.RemoveEmptyEntries);
 
-        if (parts.Length < 2)
+        if (string.IsNullOrWhiteSpace(args))
         {
             await msg.Channel.SendMessageAsync(_loc.T(lang, "DhtpNothingParsed"));
             return;
         }
 
-        var indexesRaw = parts[1]
+         var indexesRaw = args
             .Split(new[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries)
             .ToList();
 

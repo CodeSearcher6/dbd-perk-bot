@@ -17,18 +17,18 @@ public class IHaveCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!ihave")) return;
+        if (!CommandParser.TryMatch(msg.Content, "ihave", out var args)) return;
+
 
         var lang = _users.GetLang(msg.Author.Id);
-        var parts = msg.Content.Split(" ", 2, StringSplitOptions.RemoveEmptyEntries);
 
-        if (parts.Length < 2)
+        if (string.IsNullOrWhiteSpace(args))
         {
             await msg.Channel.SendMessageAsync(_loc.T(lang, "IHave_Usage"));
             return;
         }
 
-        string query = parts[1].Trim().ToLower();
+        string query = args.Trim().ToLowerInvariant();
         var user = _users.GetSettings(msg.Author.Id);
 
         // ---------- TRY CHARACTER FIRST ----------

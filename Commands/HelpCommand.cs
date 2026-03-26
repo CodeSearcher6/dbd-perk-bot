@@ -17,7 +17,7 @@ public class HelpCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!help")) return;
+        if (!CommandParser.TryMatch(msg.Content, "help", out _)) return;
 
         var lang = _users.GetLang(msg.Author.Id);
 
@@ -34,6 +34,8 @@ public class HelpCommand
             .AddField(_loc.T(lang, "HelpReset"), "\u200B")
             .AddField(_loc.T(lang, "HelpMode"), "\u200B")
             .AddField(_loc.T(lang, "HelpProfile"), "\u200B")
+            .AddField(_loc.T(lang, "HelpIAmNewbie"), "\u200B")
+            .AddField(_loc.T(lang, "HelpCharacterPerks"), "\u200B")
             .AddField(_loc.T(lang, "HelpHelp"), "\u200B");
 
         await msg.Channel.SendMessageAsync(embed: embed.Build());

@@ -7,6 +7,7 @@ public class UserSettingsService
 {
     private readonly string _file = "user_settings.json";
 
+    private readonly SemaphoreSlim _saveLock = new(1, 1);
     private readonly ConcurrentDictionary<ulong, string> _modes = new();
     private readonly ConcurrentDictionary<ulong, string> _langs = new();
     private readonly ConcurrentDictionary<ulong, UserSettings> _data = new();
@@ -17,29 +18,51 @@ public class UserSettingsService
     {
         LoadAsync().GetAwaiter().GetResult();
     }
+    private SettingsModel Snapshot()
+    {
+        return new SettingsModel
+        {
+            modes = _modes.ToDictionary(x => x.Key, x => x.Value),
+            langs = _langs.ToDictionary(x => x.Key, x => x.Value),
+            users = _data.ToDictionary(x => x.Key, x => x.Value)
+        };
+    }
 
     // 🔹 Головний метод збереження
-    public Task SaveAsync()
+    public async Task SaveAsync()
+    {
+        await _saveLock.WaitAsync();
+        try
+        {
+            var data = Snapshot();
+            var tmp = _file + ".tmp";
+
+            await using (var fs = File.Create(tmp))
+            {
+                await JsonSerializer.SerializeAsync(fs, data, _jsonOpts);
+                await fs.FlushAsync();
+            }
+
+            File.Move(tmp, _file, true);
+        }
+        finally
+        {
+            _saveLock.Release();
+        }
+    }
+
+
+    private Task QueueSave()
     {
         return Task.Run(async () =>
         {
-            var data = new SettingsModel
-            {
-                modes = _modes.ToDictionary(x => x.Key, x => x.Value),
-                langs = _langs.ToDictionary(x => x.Key, x => x.Value),
-                users = _data.ToDictionary(x => x.Key, x => x.Value)
-            };
-
-            await using var fs = File.Create(_file);
-            await JsonSerializer.SerializeAsync(fs, data, _jsonOpts);
+            try { await SaveAsync(); }
+            catch (Exception ex) { Console.WriteLine($"[SAVE] {ex.Message}"); }
         });
     }
 
     // 🔹 Обгортка для сумісності зі старими викликами
-    public Task SaveAsync(ulong userId)
-    {
-        return SaveAsync(); // ігноруємо userId, бо зберігаємо весь об’єкт
-    }
+    public Task SaveAsync(ulong userId) => SaveAsync();
 
     public UserSettings GetSettings(ulong userId)
     {
@@ -47,23 +70,32 @@ public class UserSettingsService
         {
             st = new UserSettings();
             _data[userId] = st;
-            _ = SaveAsync(); // фонове збереження
+            _ = QueueSave(); // фонове збереження
         }
         return st;
     }
 
-    public string GetMode(ulong id) => _modes.TryGetValue(id, out var m) ? m : "normal";
-    public void SetMode(ulong id, string m)
+    public string GetMode(ulong id)
     {
-        _modes[id] = m;
-        _ = SaveAsync();
+        if (!_modes.TryGetValue(id, out var mode))
+            return "random";
+
+        return mode.Equals("normal", StringComparison.OrdinalIgnoreCase)
+            ? "random"
+            : mode;
+    }
+
+    public void SetMode(ulong id, string mode)
+    {
+        _modes[id] = mode;
+        _ = QueueSave();
     }
 
     public string GetLang(ulong id) => _langs.TryGetValue(id, out var l) ? l : "en";
     public void SetLang(ulong id, string lang)
     {
         _langs[id] = lang;
-        _ = SaveAsync();
+        _ = QueueSave();
     }
 
     private async Task LoadAsync()

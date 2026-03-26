@@ -3,6 +3,10 @@ using HtmlAgilityPack;
 public static class OtzParser
 {
     private static readonly HttpClient http = new HttpClient();
+    private static readonly SemaphoreSlim _cacheLock = new(1, 1);
+    private static List<OtzBuild>? _cachedBuilds;
+    private static DateTime _cacheExpiresAtUtc = DateTime.MinValue;
+    private static readonly TimeSpan CacheLifetime = TimeSpan.FromMinutes(10);
 
     public static async Task<List<OtzBuild>> LoadBuilds(string sectionName)
     {
@@ -69,38 +73,57 @@ public static class OtzParser
 
     public static async Task<List<OtzBuild>> LoadAllBuilds()
     {
-        var sections = new[]
-        {
-        "Builds for Teams",
-        "Advanced Builds",
-        "Solo Survivors"
-    };
+        var now = DateTime.UtcNow;
+        if (_cachedBuilds != null && now < _cacheExpiresAtUtc)
+            return _cachedBuilds.ToList();
 
-        var all = new List<OtzBuild>();
-
-        foreach (var sec in sections)
+        await _cacheLock.WaitAsync();
+        try
         {
-            try
+            now = DateTime.UtcNow;
+            if (_cachedBuilds != null && now < _cacheExpiresAtUtc)
+                return _cachedBuilds.ToList();
+
+            var sections = new[]
             {
-                var builds = await LoadBuilds(sec);
-                all.AddRange(builds);
-                Console.WriteLine($"[OTZ] Loaded {builds.Count} builds from {sec}");
-            }
-            catch (Exception ex)
+            "Builds for Teams",
+            "Advanced Builds",
+            "Solo Survivors"
+        };
+
+            var all = new List<OtzBuild>();
+
+            foreach (var sec in sections)
             {
-                Console.WriteLine($"[OTZ] Failed {sec}: {ex.Message}");
+                try
+                {
+                    var builds = await LoadBuilds(sec);
+                    all.AddRange(builds);
+                    Console.WriteLine($"[OTZ] Loaded {builds.Count} builds from {sec}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[OTZ] Failed {sec}: {ex.Message}");
+                }
             }
+
+            _cachedBuilds = all;
+            _cacheExpiresAtUtc = DateTime.UtcNow.Add(CacheLifetime);
+
+            return all.ToList();
         }
-
-        return all;
+        finally
+        {
+            _cacheLock.Release();
+        }
     }
 
-}
-public class OtzBuild
-{
-    public string Section { get; set; }
-    public string BuildName { get; set; }
+    public class OtzBuild
+    {
+        public string Section { get; set; }
+        public string BuildName { get; set; }
 
-    public List<string> Perks { get; set; } = new();
-    public Dictionary<string, List<string>> AltPerks { get; set; } = new();
+        public List<string> Perks { get; set; } = new();
+        public Dictionary<string, List<string>> AltPerks { get; set; } = new();
+    }
 }

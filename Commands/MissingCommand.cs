@@ -15,7 +15,7 @@ public class MissingCommand
 
     public async Task Handle(SocketMessage msg)
     {
-        if (!msg.Content.StartsWith("!missing")) return;
+        if (!CommandParser.TryMatch(msg.Content, "missing", out _)) return;
 
         var id = msg.Author.Id;
         var lang = _users.GetLang(id);
